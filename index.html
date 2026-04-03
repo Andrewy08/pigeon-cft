@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#534AB7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="CFT Diary">
+  <meta name="description" content="Compassion-focused therapy self-criticism diary based on CFT from the Inside Out">
+  <title>CFT Self-Compassion Diary</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    :root {
+      --p50:#EEEDFE;--p100:#CECBF6;--p200:#AFA9EC;--p400:#7F77DD;--p600:#534AB7;--p800:#3C3489;
+      --t50:#E1F5EE;--t100:#9FE1CB;--t400:#1D9E75;--t600:#0F6E56;--t800:#085041;
+      --bg:#F5F4F0;--surface:#FFFFFF;--border:rgba(0,0,0,0.12);
+      --text:#1a1a1a;--text2:#5F5E5A;--texth:#888780;
+      --r:14px;--rs:9px;
+      --safe-top:env(safe-area-inset-top,0px);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    @media(prefers-color-scheme:dark){:root{
+      --bg:#1C1B1F;--surface:#2A2930;--border:rgba(255,255,255,0.12);
+      --text:#EDE9FF;--text2:#B4B2A9;--texth:#888780;
+      --p50:#26215C;--p100:#3C3489;--p200:#534AB7;
+      --t50:#04342C;--t800:#9FE1CB;
+    }}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:16px}
+    #app{display:flex;flex-direction:column;height:100%}
+    .sb{height:var(--safe-top);background:var(--p600)}
+    .topbar{background:var(--p600);color:white;padding:13px 16px;flex-shrink:0}
+    .topbar h1{font-size:17px;font-weight:600}
+    .topbar p{font-size:11px;opacity:.75;margin-top:1px}
+    .content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .inner{padding:16px 16px 24px;max-width:480px;margin:0 auto}
+    .bnav{background:var(--surface);border-top:.5px solid var(--border);display:flex;flex-shrink:0;padding-bottom:var(--safe-bottom)}
+    .nbtn{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none;color:var(--text2);transition:color .15s}
+    .nbtn.on{color:var(--p600)}
+    .nicon{font-size:22px;display:block}
+    .nlbl{font-size:10px;margin-top:2px;font-weight:500}
+    .view{display:none}.view.on{display:block}
+
+    .pips{display:flex;gap:5px;margin-bottom:16px}
+    .pip{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .2s}
+    .pip.done{background:var(--p200)}.pip.on{background:var(--p600)}
+
+    .card{background:var(--surface);border-radius:var(--r);border:.5px solid var(--border);padding:16px;margin-bottom:12px}
+    .lbl{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+    .fq{font-size:15px;font-weight:500;color:var(--text);margin-bottom:5px;line-height:1.5}
+    .fh{font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.5}
+    textarea,input[type=text]{width:100%;border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:15px;font-family:inherit;color:var(--text);background:var(--bg);resize:none;outline:none;transition:border-color .15s;line-height:1.5}
+    textarea:focus,input:focus{border-color:var(--p400)}
+
+    .rb{margin-top:11px}
+    .rl{font-size:13px;color:var(--text2);margin-bottom:5px}
+    .sr{display:flex;align-items:center;gap:10px}
+    input[type=range]{flex:1;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;outline:none}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--p600);cursor:pointer}
+    .sv{font-size:15px;font-weight:600;color:var(--p600);min-width:38px;text-align:right}
+
+    .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+    .chip{padding:6px 13px;border-radius:20px;font-size:13px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .12s;white-space:nowrap}
+    .chip.on{background:var(--p50);color:var(--p800);border-color:var(--p400)}
+
+    .emo-list{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+    .emo-row{background:var(--bg);border-radius:var(--rs);padding:10px 12px;border:.5px solid var(--border)}
+    .emo-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+    .emo-name{flex:1;font-size:14px;font-weight:500;color:var(--text)}
+    .emo-del{font-size:16px;color:var(--texth);cursor:pointer;padding:2px 4px;line-height:1}
+
+    .thought-list{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+    .thought-row{background:var(--bg);border-radius:var(--rs);padding:10px 12px;border:.5px solid var(--border);position:relative}
+    .thought-del{position:absolute;top:8px;right:10px;font-size:16px;color:var(--texth);cursor:pointer}
+
+    .btn-add{width:100%;padding:10px;border-radius:var(--rs);border:1px dashed var(--p400);background:transparent;color:var(--p600);font-size:14px;font-weight:500;cursor:pointer;margin-top:2px}
+
+    .tbox{background:var(--t50);border:.5px solid var(--t400);border-radius:var(--r);padding:16px;margin-bottom:12px}
+    .tbox .fq{color:var(--t800)}.tbox .fh{color:var(--t600)}.tbox textarea{background:var(--surface)}
+    .pbox{background:var(--p50);border:.5px solid var(--p400);border-radius:var(--r);padding:16px;margin-bottom:12px}
+    .pbox .fq{color:var(--p800)}.pbox textarea{background:var(--surface)}
+
+    .brcard{background:var(--t50);border:.5px solid var(--t400);border-radius:var(--r);padding:16px;margin-bottom:12px}
+    .brcard .fq{color:var(--t800);margin-bottom:4px}.brcard .fh{color:var(--t600);margin-bottom:14px}
+    .brcenter{display:flex;align-items:center;gap:16px}
+    .brcircle{width:52px;height:52px;border-radius:50%;background:var(--t400);cursor:pointer;flex-shrink:0;transition:transform 4s ease-in-out,opacity 4s ease-in-out;opacity:.75;display:flex;align-items:center;justify-content:center}
+    .brcircle-in{width:18px;height:18px;border-radius:50%;background:white;opacity:.6}
+    .brphrase{font-size:14px;font-weight:500;color:var(--t600)}
+    .brtap{font-size:12px;color:var(--t600);margin-top:4px}
+
+    .sbtns{display:flex;gap:10px;margin-top:6px}
+    .btn-back{flex:1;padding:13px;border-radius:var(--r);background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:14px;font-weight:500;cursor:pointer}
+    .btn-next{flex:2;padding:13px;border-radius:var(--r);background:var(--p600);border:none;color:white;font-size:14px;font-weight:600;cursor:pointer}
+    .btn-draft{width:100%;padding:12px;border-radius:var(--r);background:transparent;border:1px solid var(--border);color:var(--text2);font-size:14px;font-weight:500;cursor:pointer;margin-top:8px}
+    .btn-save{width:100%;padding:15px;border-radius:var(--r);background:var(--t400);border:none;color:white;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+    button:active{opacity:.76;transform:scale(.985)}
+
+    .shdr{margin-bottom:16px}
+    .shdr h2{font-size:18px;font-weight:700;color:var(--text)}
+    .shdr p{font-size:13px;color:var(--text2);margin-top:3px}
+
+    .draft-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#FAEEDA;color:#854F0B;margin-left:7px;vertical-align:middle}
+
+    .ec{background:var(--surface);border-radius:var(--r);border:.5px solid var(--border);padding:14px;margin-bottom:10px}
+    .ehdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
+    .edate{font-size:12px;color:var(--text2)}
+    .eright{display:flex;align-items:center;gap:7px}
+    .sbadge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--t50);color:var(--t800)}
+    .delbtn{font-size:14px;color:var(--texth);cursor:pointer;padding:2px 4px}
+    .ethought{font-size:14px;color:var(--text);font-style:italic;line-height:1.5;margin-bottom:5px}
+    .eemos{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}
+    .eemo{font-size:12px;padding:3px 9px;border-radius:10px;background:var(--p50);color:var(--p800)}
+    .econc{font-size:13px;color:var(--t800);background:var(--t50);border-radius:var(--rs);padding:9px 11px;line-height:1.5}
+    .empty{text-align:center;padding:48px 20px;color:var(--text2);line-height:1.7}
+    .ebig{font-size:38px;margin-bottom:12px}
+
+    .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    .sc{background:var(--surface);border-radius:var(--r);border:.5px solid var(--border);padding:16px;text-align:center}
+    .snum{font-size:28px;font-weight:700;color:var(--p600)}
+    .slbl{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.4}
+    .icard{background:var(--p50);border:.5px solid var(--p400);border-radius:var(--r);padding:16px;margin-bottom:12px}
+    .icard p{font-size:14px;color:var(--p800);line-height:1.6}
+
+    .btn-exp{flex:1;padding:12px 8px;border-radius:var(--rs);background:var(--p50);border:1px solid var(--p200);color:var(--p800);font-size:14px;font-weight:500;cursor:pointer;text-align:center}
+
+    /* ── Pigeon ── */
+    #pigeon-wrap {
+      position: fixed; bottom: 70px; right: 14px; z-index: 100;
+      display: flex; flex-direction: column; align-items: flex-end;
+      pointer-events: none;
+    }
+    #pigeon-bubble {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px 12px 2px 12px;
+      padding: 8px 11px; font-size: 13px; color: var(--text);
+      max-width: 170px; line-height: 1.4; margin-bottom: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      opacity: 0; transform: translateY(6px) scale(0.95);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+    }
+    #pigeon-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
+    #pigeon-svg {
+      width: 62px; height: 62px; cursor: pointer;
+      pointer-events: all;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+      transition: transform 0.2s;
+    }
+    #pigeon-svg:active { transform: scale(0.92); }
+    @keyframes pgbob   { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-4px)} }
+    @keyframes pgwiggle{ 0%,100%{transform:rotate(0deg)}   25%{transform:rotate(-8deg)} 75%{transform:rotate(8deg)} }
+    @keyframes pgflap  { 0%,100%{transform:scaleY(1)}      50%{transform:scaleY(0.6)} }
+    @keyframes pgdance { 0%{transform:translateY(0) rotate(0)} 20%{transform:translateY(-8px) rotate(-10deg)} 40%{transform:translateY(-12px) rotate(8deg)} 60%{transform:translateY(-8px) rotate(-6deg)} 80%{transform:translateY(-3px) rotate(4deg)} 100%{transform:translateY(0) rotate(0)} }
+    @keyframes pghop   { 0%,100%{transform:translateY(0)}  30%{transform:translateY(-10px)} 60%{transform:translateY(-5px)} }
+    .pg-bob    { animation: pgbob    2.4s ease-in-out infinite; }
+    .pg-wiggle { animation: pgwiggle 0.6s ease-in-out; }
+    .pg-dance  { animation: pgdance  0.8s ease-in-out; }
+    .pg-hop    { animation: pghop    0.5s ease-in-out; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="sb"></div>
+  <div class="topbar">
+    <h1>CFT Self-Compassion Diary</h1>
+    <p>Based on Kolts et al. — CFT from the Inside Out</p>
+  </div>
+
+  <div class="content">
+    <div class="inner">
+
+      <!-- LOG -->
+      <div id="view-log" class="view on">
+        <div class="pips" id="pips"></div>
+
+        <!-- Step 1 -->
+        <div class="step" id="step-1">
+          <div class="shdr"><h2>The trigger</h2><p>Step 1 of 5 — What set this off?</p></div>
+
+          <div class="card">
+            <div class="lbl">Trigger</div>
+            <div class="fq">What triggered the self-criticism?</div>
+            <div class="fh">A situation, thought, memory, something anticipated, or a feeling in your body.</div>
+            <textarea id="f-trigger" rows="3" placeholder="Describe what triggered it..."></textarea>
+          </div>
+
+          <div class="card">
+            <div class="lbl">Self-critical thought(s)</div>
+            <div class="fq">What were the self-critical thoughts?</div>
+            <div class="thought-list" id="thought-list"></div>
+            <button class="btn-add" onclick="addThought()">+ Add another thought</button>
+          </div>
+
+          <div class="card">
+            <div class="lbl">Emotions</div>
+            <div class="fq">What emotions came up?</div>
+            <div class="fh">Tap to add, or type your own below.</div>
+            <div class="chips" id="emo-chips">
+              <div class="chip" onclick="toggleChip(this,'Shame')">Shame</div>
+              <div class="chip" onclick="toggleChip(this,'Anxiety')">Anxiety</div>
+              <div class="chip" onclick="toggleChip(this,'Sadness')">Sadness</div>
+              <div class="chip" onclick="toggleChip(this,'Anger')">Anger</div>
+              <div class="chip" onclick="toggleChip(this,'Guilt')">Guilt</div>
+              <div class="chip" onclick="toggleChip(this,'Disgust')">Disgust</div>
+              <div class="chip" onclick="toggleChip(this,'Fear')">Fear</div>
+              <div class="chip" onclick="toggleChip(this,'Loneliness')">Loneliness</div>
+              <div class="chip" onclick="toggleChip(this,'Hopelessness')">Hopelessness</div>
+            </div>
+            <div class="emo-list" id="emo-list"></div>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <input type="text" id="emo-custom" placeholder="Other emotion..." style="flex:1" onkeydown="if(event.key==='Enter'){addCustomEmo();event.preventDefault()}">
+              <button class="btn-add" style="width:auto;padding:10px 14px;margin-top:0" onclick="addCustomEmo()">Add</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="lbl">Consequences</div>
+            <div class="fq">What are the consequences of this self-criticism?</div>
+            <div class="fh">How does it affect your behaviour, your body, your relationships, or how you feel about yourself?</div>
+            <textarea id="f-consequences" rows="3" placeholder="e.g. I withdraw, avoid trying new things, feel exhausted and hopeless..."></textarea>
+          </div>
+
+          <div class="sbtns">
+            <button class="btn-next" onclick="goStep(2)">Next →</button>
+          </div>
+          <button class="btn-draft" onclick="saveDraft()">Save as draft</button>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step" id="step-2" style="display:none">
+          <div class="shdr"><h2>Soothing pause</h2><p>Step 2 of 5 — Ground yourself before responding</p></div>
+          <div class="brcard">
+            <div class="fq">Soothing rhythm breathing</div>
+            <div class="fh">In for 4 counts, hold briefly, out for 6. Let your body settle. Bring your compassionate image to mind. Tap the circle to begin.</div>
+            <div class="brcenter">
+              <div class="brcircle" id="brcircle" onclick="startBreath()"><div class="brcircle-in"></div></div>
+              <div>
+                <div class="brphrase" id="brphrase">Tap to begin</div>
+                <div class="brtap" id="brtap">4 cycles · ~50 seconds</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="lbl">Function of the critic</div>
+            <div class="fq">What is the self-critical voice trying to do?</div>
+            <div class="fh">Notice it with curiosity — is it trying to motivate, protect, or warn you?</div>
+            <textarea id="f-function" rows="3" placeholder="e.g. It's trying to push me to do better, but it's harsh and shaming..."></textarea>
+          </div>
+          <div class="sbtns">
+            <button class="btn-back" onclick="goStep(1)">← Back</button>
+            <button class="btn-next" onclick="goStep(3)">Next →</button>
+          </div>
+          <button class="btn-draft" onclick="saveDraft()">Save as draft</button>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step" id="step-3" style="display:none">
+          <div class="shdr"><h2>Compassionate response</h2><p>Step 3 of 5 — Respond with warmth and wisdom</p></div>
+          <div class="pbox">
+            <div class="fq">What does your compassionate image have to say?</div>
+            <textarea id="f-comp-image" rows="3" placeholder="Imagine a deeply wise, warm, caring presence — what would they say to you?"></textarea>
+          </div>
+          <div class="pbox">
+            <div class="fq">What would you say to a close friend feeling this way?</div>
+            <textarea id="f-comp-friend" rows="3" placeholder="Write with the warmth you'd genuinely offer them..."></textarea>
+          </div>
+          <div class="pbox">
+            <div class="fq">What does your compassionate self want to say to the critical part?</div>
+            <textarea id="f-comp-self" rows="3" placeholder="Speak from your compassionate self to your inner critic..."></textarea>
+          </div>
+          <div class="sbtns">
+            <button class="btn-back" onclick="goStep(2)">← Back</button>
+            <button class="btn-next" onclick="goStep(4)">Next →</button>
+          </div>
+          <button class="btn-draft" onclick="saveDraft()">Save as draft</button>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step" id="step-4" style="display:none">
+          <div class="shdr"><h2>Broader perspective</h2><p>Step 4 of 5 — Widen the lens</p></div>
+          <div class="pbox">
+            <div class="fq">What are kinder or more realistic ways of seeing this?</div>
+            <textarea id="f-perspective" rows="3" placeholder="e.g. Everyone makes mistakes — this doesn't define me..."></textarea>
+          </div>
+          <div class="pbox">
+            <div class="fq">How will you feel about this in a week, a month, a year?</div>
+            <textarea id="f-future" rows="2" placeholder="Notice how this fits into the bigger picture of your life..."></textarea>
+          </div>
+          <div class="tbox">
+            <div class="fq">What do you actually need right now?</div>
+            <textarea id="f-need" rows="2" placeholder="e.g. Rest, kindness, to talk to someone, to let this go..."></textarea>
+          </div>
+          <div class="sbtns">
+            <button class="btn-back" onclick="goStep(3)">← Back</button>
+            <button class="btn-next" onclick="goStep(5)">Next →</button>
+          </div>
+          <button class="btn-draft" onclick="saveDraft()">Save as draft</button>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="step" id="step-5" style="display:none">
+          <div class="shdr"><h2>Compassionate conclusion</h2><p>Step 5 of 5 — Bring it all together</p></div>
+          <div class="tbox">
+            <div class="fq">Read back your compassionate responses. Now write a kinder, wiser conclusion.</div>
+            <div class="fh">Say it to yourself as you would to someone you love.</div>
+            <textarea id="f-conclusion" rows="5" placeholder="A more compassionate way of seeing this situation and yourself..."></textarea>
+          </div>
+          <div class="card">
+            <div class="lbl">Re-rate after the exercise</div>
+            <div id="rerate-list"></div>
+          </div>
+          <div class="sbtns">
+            <button class="btn-back" onclick="goStep(4)">← Back</button>
+          </div>
+          <button class="btn-save" onclick="saveEntry()">Save entry ✓</button>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div id="view-history" class="view">
+        <div id="hist-list"></div>
+      </div>
+
+      <!-- INSIGHTS -->
+      <div id="view-insights" class="view">
+        <div id="ins-body"></div>
+        <div class="card" style="margin-top:4px">
+          <div class="lbl">Backup your entries</div>
+          <p style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:12px">Export saves all entries as a file. Keep a copy in Google Drive for safety.</p>
+          <div style="display:flex;gap:8px">
+            <button class="btn-exp" onclick="exportEntries()">⬇ Export</button>
+            <button class="btn-exp" onclick="g('imp-input').click()">⬆ Import</button>
+          </div>
+          <input type="file" id="imp-input" accept=".json" style="display:none" onchange="importEntries(event)">
+          <div id="imp-msg" style="font-size:13px;color:var(--t400);margin-top:8px;display:none"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bnav">
+    <button class="nbtn on" id="nav-log" onclick="showView('log')">
+      <span class="nicon">✏️</span><span class="nlbl">New entry</span>
+    </button>
+    <button class="nbtn" id="nav-history" onclick="showView('history')">
+      <span class="nicon">📖</span><span class="nlbl">History</span>
+    </button>
+    <button class="nbtn" id="nav-insights" onclick="showView('insights')">
+      <span class="nicon">📊</span><span class="nlbl">Insights</span>
+    </button>
+  </div>
+
+  <!-- ── Pigeon ── -->
+  <div id="pigeon-wrap">
+    <div id="pigeon-bubble"></div>
+    <svg id="pigeon-svg" viewBox="0 0 62 62" onclick="pigeonTapped()" xmlns="http://www.w3.org/2000/svg">
+      <!-- shadow -->
+      <ellipse cx="31" cy="57" rx="14" ry="3" fill="rgba(0,0,0,0.10)"/>
+      <!-- tail -->
+      <path id="pg-tail" d="M14 38 Q8 42 6 48 Q12 44 18 42Z" fill="#9E9E9E"/>
+      <!-- wings -->
+      <g id="pg-wings">
+        <path id="pg-wing-l" d="M22 32 Q12 28 8 34 Q14 36 22 36Z" fill="#BDBDBD"/>
+        <path id="pg-wing-r" d="M40 32 Q50 28 54 34 Q48 36 40 36Z" fill="#BDBDBD"/>
+      </g>
+      <!-- body -->
+      <ellipse cx="31" cy="37" rx="13" ry="11" fill="#B0BEC5"/>
+      <!-- neck -->
+      <ellipse cx="31" cy="26" rx="9" ry="8" fill="#CFD8DC"/>
+      <!-- chest shimmer (iridescent patch) -->
+      <ellipse id="pg-chest" cx="31" cy="32" rx="6" ry="5" fill="#90CAF9" opacity="0.45"/>
+      <!-- head -->
+      <circle id="pg-head" cx="31" cy="18" r="9" fill="#ECEFF1"/>
+      <!-- eye -->
+      <circle id="pg-eye-white" cx="34" cy="16" r="3.2" fill="white"/>
+      <circle id="pg-eye-pupil" cx="34.8" cy="16" r="1.8" fill="#1a1a1a"/>
+      <circle cx="35.4" cy="15.3" r="0.6" fill="white"/>
+      <!-- beak -->
+      <path id="pg-beak" d="M38 18 L43 17.5 L42 19.5Z" fill="#FFA726"/>
+      <!-- feet -->
+      <g id="pg-feet" fill="#FFA726">
+        <line x1="26" y1="47" x2="24" y2="52" stroke="#FFA726" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="24" y1="52" x2="21" y2="52" stroke="#FFA726" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="24" y1="52" x2="23" y2="54" stroke="#FFA726" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="36" y1="47" x2="38" y2="52" stroke="#FFA726" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="38" y1="52" x2="41" y2="52" stroke="#FFA726" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="38" y1="52" x2="39" y2="54" stroke="#FFA726" stroke-width="1.5" stroke-linecap="round"/>
+      </g>
+      <!-- happy blush (hidden by default) -->
+      <circle id="pg-blush-l" cx="27" cy="20" r="3" fill="#F48FB1" opacity="0"/>
+      <circle id="pg-blush-r" cx="35" cy="20" r="3" fill="#F48FB1" opacity="0"/>
+      <!-- stars for celebrate (hidden) -->
+      <g id="pg-stars" opacity="0">
+        <text x="44" y="10" font-size="9" fill="#FFD700">★</text>
+        <text x="13" y="12" font-size="7" fill="#FFD700">✦</text>
+        <text x="48" y="22" font-size="6" fill="#FFB300">✦</text>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<script>
+let entries = [];
+let curStep = 1;
+const STEPS = 5;
+let breathRunning = false;
+let thoughts = [];
+let emotions = [];
+
+try { entries = JSON.parse(localStorage.getItem('cft_v3') || '[]'); } catch(e) {}
+function persist() { try { localStorage.setItem('cft_v3', JSON.stringify(entries)); } catch(e) {} }
+function g(id) { return document.getElementById(id); }
+function gv(id) { return g(id) ? g(id).value.trim() : ''; }
+
+// Pips
+function renderPips() {
+  const el = g('pips'); el.innerHTML = '';
+  for (let i = 1; i <= STEPS; i++) {
+    const d = document.createElement('div');
+    d.className = 'pip' + (i < curStep ? ' done' : i === curStep ? ' on' : '');
+    el.appendChild(d);
+  }
+}
+renderPips();
+
+// Step navigation
+function goStep(n) {
+  g('step-' + curStep).style.display = 'none';
+  curStep = n;
+  g('step-' + curStep).style.display = 'block';
+  renderPips();
+  if (n === 5) renderRerate();
+  document.querySelector('.content').scrollTo(0, 0);
+}
+
+// View navigation
+function showView(v) {
+  ['log','history','insights'].forEach(x => {
+    g('view-' + x).classList.remove('on');
+    g('nav-' + x).classList.remove('on');
+  });
+  g('view-' + v).classList.add('on');
+  g('nav-' + v).classList.add('on');
+  if (v === 'history') renderHistory();
+  if (v === 'insights') renderInsights();
+}
+
+// Emotion chips
+function toggleChip(el, name) {
+  const idx = emotions.findIndex(e => e.name === name);
+  if (idx >= 0) {
+    emotions.splice(idx, 1);
+    el.classList.remove('on');
+  } else {
+    emotions.push({ name, intensity: 50 });
+    el.classList.add('on');
+  }
+  renderEmoList();
+}
+
+function addCustomEmo() {
+  const inp = g('emo-custom');
+  const name = inp.value.trim();
+  if (!name) return;
+  if (emotions.find(e => e.name.toLowerCase() === name.toLowerCase())) { inp.value = ''; return; }
+  emotions.push({ name, intensity: 50 });
+  inp.value = '';
+  renderEmoList();
+}
+
+function removeEmo(idx) {
+  const name = emotions[idx].name;
+  emotions.splice(idx, 1);
+  document.querySelectorAll('#emo-chips .chip').forEach(c => {
+    if (c.textContent === name) c.classList.remove('on');
+  });
+  renderEmoList();
+}
+
+function renderEmoList() {
+  g('emo-list').innerHTML = emotions.map((e, i) => `
+    <div class="emo-row">
+      <div class="emo-top">
+        <span class="emo-name">${e.name}</span>
+        <span class="emo-del" onclick="removeEmo(${i})">✕</span>
+      </div>
+      <div class="rl">Intensity</div>
+      <div class="sr">
+        <input type="range" min="0" max="100" step="1" value="${e.intensity}"
+          oninput="emotions[${i}].intensity=+this.value;this.nextElementSibling.textContent=this.value+'%'">
+        <span class="sv">${e.intensity}%</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Thought list
+function addThought() {
+  thoughts.push({ text: '', belief: 50 });
+  renderThoughts();
+  setTimeout(() => {
+    const tas = g('thought-list').querySelectorAll('textarea');
+    if (tas.length) tas[tas.length - 1].focus();
+  }, 50);
+}
+
+function removeThought(idx) {
+  thoughts.splice(idx, 1);
+  renderThoughts();
+}
+
+function renderThoughts() {
+  g('thought-list').innerHTML = thoughts.map((t, i) => `
+    <div class="thought-row">
+      ${thoughts.length > 1 ? `<span class="thought-del" onclick="removeThought(${i})">✕</span>` : ''}
+      <textarea rows="2" placeholder="Self-critical thought..."
+        oninput="thoughts[${i}].text=this.value;if(this.value.length>3)setMood(1)">${t.text}</textarea>
+      <div class="rb">
+        <div class="rl">How much do you believe this? (0–100%)</div>
+        <div class="sr">
+          <input type="range" min="0" max="100" step="1" value="${t.belief}"
+            oninput="thoughts[${i}].belief=+this.value;this.nextElementSibling.textContent=this.value+'%'">
+          <span class="sv">${t.belief}%</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+addThought(); // start with one
+
+// Re-rate panel
+function renderRerate() {
+  const el = g('rerate-list');
+  if (!thoughts.filter(t=>t.text).length && !emotions.length) {
+    el.innerHTML = '<p style="font-size:14px;color:var(--text2)">Add thoughts and emotions in step 1 to re-rate them here.</p>';
+    return;
+  }
+  let html = '';
+  thoughts.filter(t => t.text).forEach((t, i) => {
+    const label = `"${t.text.slice(0,60)}${t.text.length>60?'…':''}"`;
+    const post = t.belief_post !== undefined ? t.belief_post : t.belief;
+    html += `
+      <div style="margin-bottom:14px">
+        <div class="rl" style="font-style:italic;margin-bottom:6px">${label}</div>
+        <div class="rl">Belief now</div>
+        <div class="sr">
+          <input type="range" min="0" max="100" step="1" value="${post}"
+            oninput="setThoughtPost(${i},+this.value);this.nextElementSibling.textContent=this.value+'%'">
+          <span class="sv">${post}%</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">Was ${t.belief}% before</div>
+      </div>`;
+  });
+  if (emotions.length) {
+    html += `<div class="lbl" style="margin-top:4px;margin-bottom:10px">Emotion intensity now</div>`;
+    emotions.forEach((e, i) => {
+      const post = e.intensity_post !== undefined ? e.intensity_post : e.intensity;
+      html += `
+        <div style="margin-bottom:12px">
+          <div class="rl" style="margin-bottom:6px">${e.name}</div>
+          <div class="sr">
+            <input type="range" min="0" max="100" step="1" value="${post}"
+              oninput="emotions[${i}].intensity_post=+this.value;this.nextElementSibling.textContent=this.value+'%'">
+            <span class="sv">${post}%</span>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">Was ${e.intensity}% before</div>
+        </div>`;
+    });
+  }
+  el.innerHTML = html;
+}
+
+function setThoughtPost(renderIdx, val) {
+  // renderIdx is index into filtered thoughts — map back to full array
+  const filtered = thoughts.filter(t => t.text);
+  const t = filtered[renderIdx];
+  const fullIdx = thoughts.indexOf(t);
+  if (fullIdx >= 0) thoughts[fullIdx].belief_post = val;
+}
+
+// Breathing
+function startBreath() {
+  if (breathRunning) return;
+  breathRunning = true;
+  const phases = [
+    { text: 'Breathe in...', scale: 1.55, dur: 4000 },
+    { text: 'Hold...', scale: 1.55, dur: 2000 },
+    { text: 'Breathe out...', scale: 1, dur: 6000 },
+    { text: 'Pause...', scale: 1, dur: 2000 },
+  ];
+  let cycle = 0;
+  g('brtap').textContent = '';
+  function tick() {
+    const ph = phases[cycle % 4];
+    g('brphrase').textContent = ph.text;
+    g('brcircle').style.transform = 'scale(' + ph.scale + ')';
+    g('brcircle').style.opacity = ph.scale > 1 ? '1' : '0.75';
+    cycle++;
+    if (cycle < 16) setTimeout(tick, ph.dur);
+    else { g('brphrase').textContent = 'Well done ✓'; g('brtap').textContent = 'Tap to repeat'; breathRunning = false; }
+  }
+  tick();
+}
+
+// Collect entry data
+function collectEntry(isDraft) {
+  return {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    draft: isDraft,
+    trigger: gv('f-trigger'),
+    consequences: gv('f-consequences'),
+    thoughts: thoughts.map(t => ({ ...t })),
+    emotions: emotions.map(e => ({ ...e })),
+    function: gv('f-function'),
+    comp_image: gv('f-comp-image'),
+    comp_friend: gv('f-comp-friend'),
+    comp_self: gv('f-comp-self'),
+    perspective: gv('f-perspective'),
+    future: gv('f-future'),
+    need: gv('f-need'),
+    conclusion: gv('f-conclusion'),
+  };
+}
+
+function saveDraft() {
+  const hasContent = gv('f-trigger') || thoughts.some(t => t.text) || emotions.length;
+  if (!hasContent) { alert('Add at least a trigger or a thought before saving a draft.'); return; }
+  entries.unshift(collectEntry(true));
+  persist();
+  setMood(2, true);
+  showBubble('Saved for later. Come back when you\'re ready.');
+  resetForm();
+  showView('history');
+}
+
+function saveEntry() {
+  if (!thoughts.some(t => t.text.trim())) {
+    alert('Please add at least one self-critical thought in step 1.');
+    goStep(1);
+    return;
+  }
+  entries.unshift(collectEntry(false));
+  persist();
+  pigeonCelebrate();
+  resetForm();
+  showView('history');
+}
+
+function resetForm() {
+  thoughts = []; emotions = [];
+  ['f-trigger','f-consequences','f-function','f-comp-image','f-comp-friend','f-comp-self',
+   'f-perspective','f-future','f-need','f-conclusion'].forEach(id => { if (g(id)) g(id).value = ''; });
+  document.querySelectorAll('#emo-chips .chip').forEach(c => c.classList.remove('on'));
+  g('emo-custom').value = '';
+  breathRunning = false;
+  g('brphrase').textContent = 'Tap to begin';
+  g('brtap').textContent = '4 cycles · ~50 seconds';
+  g('brcircle').style.transform = '';
+  renderEmoList();
+  addThought();
+  goStep(1);
+  setTimeout(() => setMood(0, true), 400);
+}
+
+// History
+function fmt(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) +
+    ' · ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function renderHistory() {
+  const el = g('hist-list');
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty"><div class="ebig">📝</div><p>No entries yet.<br>Complete your first diary entry<br>to begin your practice.</p></div>';
+    return;
+  }
+  el.innerHTML = entries.map(e => {
+    const bShifts = (e.thoughts||[]).map(t => (t.belief||0) - (t.belief_post !== undefined ? t.belief_post : t.belief));
+    const iShifts = (e.emotions||[]).map(em => (em.intensity||0) - (em.intensity_post !== undefined ? em.intensity_post : em.intensity));
+    const maxShift = Math.max(0, ...[...bShifts, ...iShifts]);
+    const thoughtsHtml = (e.thoughts||[]).filter(t=>t.text).map(t => `<div class="ethought">"${t.text}"</div>`).join('');
+    const emosHtml = (e.emotions||[]).length
+      ? `<div class="eemos">${e.emotions.map(em=>`<span class="eemo">${em.name} ${em.intensity}%</span>`).join('')}</div>`
+      : '';
+    return `
+      <div class="ec">
+        <div class="ehdr">
+          <div>
+            <span class="edate">${fmt(e.date)}</span>
+            ${e.draft ? '<span class="draft-badge">draft</span>' : ''}
+          </div>
+          <div class="eright">
+            ${maxShift > 0 ? `<span class="sbadge">↓ ${maxShift}%</span>` : ''}
+            <span class="delbtn" onclick="delEntry(${e.id})">✕</span>
+          </div>
+        </div>
+        ${e.trigger ? `<div style="font-size:12px;color:var(--text2);margin-bottom:5px">Trigger: ${e.trigger}</div>` : ''}
+        ${e.consequences ? `<div style="font-size:12px;color:var(--text2);margin-bottom:5px">Consequences: ${e.consequences}</div>` : ''}
+        ${thoughtsHtml}
+        ${emosHtml}
+        ${e.conclusion ? `<div class="econc">${e.conclusion}</div>` : ''}
+        ${e.need ? `<div style="font-size:12px;color:var(--text2);margin-top:7px">Need: ${e.need}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function delEntry(id) {
+  if (!confirm('Delete this entry?')) return;
+  entries = entries.filter(e => e.id !== id);
+  persist();
+  renderHistory();
+}
+
+// Insights
+function renderInsights() {
+  const el = g('ins-body');
+  const complete = entries.filter(e => !e.draft);
+  const drafts = entries.filter(e => e.draft);
+  if (!entries.length) {
+    el.innerHTML = '<div class="icard"><p>Complete a few diary entries to see your patterns here.</p></div>';
+    return;
+  }
+  let bPre=[], bPost=[], iPre=[], iPost=[];
+  complete.forEach(e => {
+    (e.thoughts||[]).forEach(t => {
+      if (t.belief !== undefined) bPre.push(t.belief);
+      if (t.belief_post !== undefined) bPost.push(t.belief_post);
+    });
+    (e.emotions||[]).forEach(em => {
+      if (em.intensity !== undefined) iPre.push(em.intensity);
+      if (em.intensity_post !== undefined) iPost.push(em.intensity_post);
+    });
+  });
+  const avg = arr => arr.length ? Math.round(arr.reduce((a,v)=>a+v,0)/arr.length) : null;
+  const bDrop = avg(bPre) !== null && avg(bPost) !== null ? avg(bPre) - avg(bPost) : null;
+  const iDrop = avg(iPre) !== null && avg(iPost) !== null ? avg(iPre) - avg(iPost) : null;
+  const withConc = complete.filter(e => e.conclusion).length;
+  const pct = complete.length ? Math.round(withConc / complete.length * 100) : 0;
+
+  const emoMap = {};
+  entries.forEach(e => (e.emotions||[]).forEach(em => { emoMap[em.name] = (emoMap[em.name]||0) + 1; }));
+  const topEmos = Object.entries(emoMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  el.innerHTML = `
+    <div class="sgrid">
+      <div class="sc"><div class="snum">${complete.length}</div><div class="slbl">Complete entries</div></div>
+      <div class="sc"><div class="snum">${drafts.length}</div><div class="slbl">Drafts saved</div></div>
+      <div class="sc"><div class="snum">${bDrop !== null ? (bDrop >= 0 ? '-' : '+') + Math.abs(bDrop) + '%' : '—'}</div><div class="slbl">Avg belief shift</div></div>
+      <div class="sc"><div class="snum">${iDrop !== null ? (iDrop >= 0 ? '-' : '+') + Math.abs(iDrop) + '%' : '—'}</div><div class="slbl">Avg intensity shift</div></div>
+    </div>
+    <div class="icard"><p>
+      ${bDrop !== null && bDrop > 0
+        ? `Working through the diary reduces belief in self-critical thoughts by ${bDrop} points on average.`
+        : complete.length ? 'Keep completing entries to see how the practice shifts your belief ratings.' : 'Complete your first full entry to see your shifts here.'}
+      ${iDrop !== null && iDrop > 0 ? ` Emotional intensity drops by ${iDrop} points after the compassion exercise.` : ''}
+      ${complete.length >= 3 ? (pct >= 75 ? ' You\'re consistently reaching a compassionate conclusion — the heart of the practice.' : ' Try to always write a compassionate conclusion in step 5.') : ''}
+    </p></div>
+    ${topEmos.length ? `
+      <div class="card">
+        <div class="lbl">Most tracked emotions</div>
+        <div class="eemos" style="margin-top:4px">
+          ${topEmos.map(([name, count]) => `<span class="eemo">${name} · ${count}×</span>`).join('')}
+        </div>
+      </div>` : ''}
+  `;
+}
+
+// Export / Import
+function exportEntries() {
+  if (!entries.length) { alert('No entries to export yet.'); return; }
+  const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cft-diary-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importEntries(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imp = JSON.parse(e.target.result);
+      if (!Array.isArray(imp)) throw new Error();
+      const ids = new Set(entries.map(e => e.id));
+      const fresh = imp.filter(e => !ids.has(e.id));
+      entries = [...entries, ...fresh].sort((a,b) => b.id - a.id);
+      persist();
+      const msg = g('imp-msg');
+      msg.style.display = 'block';
+      msg.textContent = fresh.length
+        ? `✓ Imported ${fresh.length} new entr${fresh.length === 1 ? 'y' : 'ies'}.`
+        : '✓ Already up to date.';
+      setTimeout(() => { msg.style.display = 'none'; }, 4000);
+      renderInsights();
+    } catch { alert('Could not read that file — make sure it\'s a CFT diary backup.'); }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ── Pigeon ──────────────────────────────────────────────
+// mood: 0=idle 1=noticed 2=engaged 3=warm 4=celebrating
+let pigeonMood = 0;
+let bubbleTimer = null;
+
+const MOODS = [
+  // 0 idle — slow bob, neutral face
+  { anim: 'pg-bob', blush: 0, stars: false,
+    messages: ['Hey, I\'m here with you.', 'Take your time.', 'No rush.', 'I\'ve got nowhere to be.'] },
+  // 1 noticed — you started writing
+  { anim: 'pg-bob', blush: 0, stars: false,
+    messages: ['Good, you noticed something.', 'That took courage.', 'I\'m listening.', 'You showed up. That matters.'] },
+  // 2 engaged — step 2 or 3 reached
+  { anim: 'pg-bob', blush: 0.4, stars: false,
+    messages: ['You\'re doing really well.', 'This is the hard part — you\'re doing it.', 'Keep going, I\'m proud of you.', 'Look at you, working through this.'] },
+  // 3 warm — step 4 reached
+  { anim: 'pg-bob', blush: 0.7, stars: false,
+    messages: ['Almost there!', 'You\'re being so brave.', 'This takes real strength.', 'I can see you trying. That\'s everything.'] },
+  // 4 celebrating — entry saved!
+  { anim: 'pg-dance', blush: 1, stars: true,
+    messages: ['You did it!! 🎉', 'I\'m SO proud of you!', 'That was incredible work.', 'You showed yourself real compassion today.', 'Every entry matters. This one too.'] },
+];
+
+function setMood(n, force) {
+  if (n <= pigeonMood && !force) return; // only go up unless forced
+  pigeonMood = n;
+  const mood = MOODS[n];
+  const svg = g('pigeon-svg');
+
+  // clear old animation classes
+  svg.classList.remove('pg-bob','pg-wiggle','pg-dance','pg-hop');
+
+  // blush
+  const bl = g('pg-blush-l'), br = g('pg-blush-r');
+  bl.setAttribute('opacity', mood.blush);
+  br.setAttribute('opacity', mood.blush);
+
+  // stars
+  g('pg-stars').setAttribute('opacity', mood.stars ? '1' : '0');
+
+  // eye — gets bigger/brighter as mood rises
+  const pupil = g('pg-eye-pupil');
+  const eyeWhite = g('pg-eye-white');
+  if (n >= 3) {
+    // happy squint — move pupil up slightly
+    pupil.setAttribute('cy', '15.5');
+    eyeWhite.setAttribute('ry', '3.2');
+  } else {
+    pupil.setAttribute('cy', '16');
+    eyeWhite.setAttribute('ry', '3.2');
+  }
+
+  // chest shimmer colour shifts with mood
+  const chest = g('pg-chest');
+  const chestCols = ['#90CAF9','#90CAF9','#80DEEA','#A5D6A7','#FFD54F'];
+  chest.setAttribute('fill', chestCols[n]);
+  chest.setAttribute('opacity', 0.35 + n * 0.13);
+
+  // apply animation
+  void svg.offsetWidth; // reflow to restart animation
+  svg.classList.add(mood.anim);
+
+  // after dance, settle into bob
+  if (mood.anim === 'pg-dance') {
+    setTimeout(() => {
+      svg.classList.remove('pg-dance');
+      svg.classList.add('pg-bob');
+    }, 900);
+  }
+}
+
+function showBubble(text) {
+  const b = g('pigeon-bubble');
+  if (bubbleTimer) clearTimeout(bubbleTimer);
+  b.textContent = text;
+  b.classList.add('show');
+  bubbleTimer = setTimeout(() => { b.classList.remove('show'); }, 3500);
+}
+
+function pigeonTapped() {
+  const mood = MOODS[pigeonMood];
+  const msg = mood.messages[Math.floor(Math.random() * mood.messages.length)];
+  showBubble(msg);
+  // do a little hop on tap
+  const svg = g('pigeon-svg');
+  svg.classList.remove('pg-hop');
+  void svg.offsetWidth;
+  svg.classList.add('pg-hop');
+  setTimeout(() => {
+    svg.classList.remove('pg-hop');
+    svg.classList.add(MOODS[pigeonMood].anim === 'pg-dance' ? 'pg-bob' : MOODS[pigeonMood].anim);
+  }, 550);
+}
+
+function pigeonOnStep(step) {
+  // map step completion to mood
+  if (step >= 4) setMood(3);
+  else if (step >= 2) setMood(2);
+  else setMood(1);
+}
+
+function pigeonCelebrate() {
+  setMood(4, true);
+  setTimeout(() => showBubble(MOODS[4].messages[Math.floor(Math.random() * MOODS[4].messages.length)]), 300);
+  // drift back to warm after a bit
+  setTimeout(() => setMood(3, true), 5000);
+}
+
+// Hook into existing navigation
+const _origGoStep = goStep;
+goStep = function(n) {
+  _origGoStep(n);
+  pigeonOnStep(n);
+};
+
+// init bob
+setTimeout(() => setMood(0, true), 200);
+
+// ── Service worker ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/pigeon-cft/sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
